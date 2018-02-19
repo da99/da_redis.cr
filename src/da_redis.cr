@@ -27,6 +27,7 @@ class DA_Redis
   end
 
   def self.receive_and_parse(conn)
+    conn.flush
     type = conn.read_char
     line = begin
              raw_line = conn.gets(chomp: false)
@@ -102,6 +103,10 @@ class DA_Redis
     @is_connected
   end # === def connected?
 
+  def flush
+    @socket.flush
+  end
+
   def read_char
     @socket.read_char
   end
@@ -118,17 +123,33 @@ class DA_Redis
     @socket.skip(*args)
   end
 
-  def send(*message)
-    @socket << "*" << message.size << "\r\n"
-    message.each do |element|
-      case element
-      when String
-        @socket << "$" << element.bytesize << "\r\n" << element << "\r\n"
-      else
-        raise Exception.new("Invalid value: #{element.inspect} in message: #{message.inspect}")
-      end
-    end
-    @socket.flush
+  def send_arg(element : String)
+    @socket << "$" << element.bytesize << "\r\n" << element << "\r\n"
+  end
+
+  def send(cmd_name : String, message : Array(String))
+    msg_size = 1 + message.size
+    @socket << "*" << msg_size << "\r\n"
+    send_arg(cmd_name)
+    message.each { |x|
+      send_arg(x)
+    }
+    self.class.receive_and_parse(self)
+  end
+
+  def send(cmd_name : String, message : String)
+    @socket << "*" << 2 << "\r\n"
+    send_arg(cmd_name)
+    send_arg(message)
+    self.class.receive_and_parse(self)
+  end
+
+  def send(cmd_name : String, *args)
+    msg_size = 1 + args.size
+    @socket << "*" << msg_size << "\r\n"
+
+    send_arg(cmd_name)
+    args.each { |a| send_arg(a) }
 
     self.class.receive_and_parse(self)
   end # def send

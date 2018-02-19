@@ -19,6 +19,7 @@ case "$ACTION" in
     ;;
 
   run)
+    reset
     cd "$THIS_DIR"
     local +x out="tmp/out/da_redis.specs"
     mkdir -p tmp/in tmp/out

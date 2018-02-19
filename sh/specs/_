@@ -27,6 +27,7 @@ case "$ACTION" in
 
     sh_color ORANGE "=== {{Running}}: $out"
     $out
+    sh_color GREEN "=== {{DONE}} ==="
     ;;
 
   *)

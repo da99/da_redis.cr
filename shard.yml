@@ -1,5 +1,5 @@
 ---
-name: da_redis.cr
+name: da_redis
 version: 0.0.1
 dependencies:
   exit_on_error:

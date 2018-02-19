@@ -1,4 +1,4 @@
 ---
 name: da_redis
-version: 0.0.2
-dependencies:
+version: 0.0.3
+dependencies: 

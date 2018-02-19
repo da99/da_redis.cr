@@ -13,6 +13,13 @@ class DA_Redis
 
   @@CONNECTIONS = [] of TCPSocket
 
+  def self.connect(*args)
+    r = new(*args)
+    result = yield r
+    r.close
+    result
+  end
+
   def self.close
     @@CONNECTIONS.each { |x|
       x.close
@@ -145,6 +152,7 @@ class DA_Redis
 
   def close
     if connected?
+      send("QUIT")
       @socket.close
       @is_connected = false
     end

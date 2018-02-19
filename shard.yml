@@ -1,6 +1,6 @@
 ---
 name: da_redis
-version: 0.0.1
+version: 0.0.2
 dependencies:
   exit_on_error:
     github: da99/exit_on_error

@@ -1,0 +1,38 @@
+#!/usr/bin/env zsh
+#
+# === {{CMD}}
+#
+set -u -e -o pipefail
+
+local +x ORIGINAL_ARGS="$@"
+
+if [[ -z "$@" ]]; then
+  local +x ACTION="watch"
+else
+  local +x ACTION="$1"; shift
+fi
+
+case "$ACTION" in
+
+  watch)
+    process watch "-r ./" "da_redis.cr specs run"
+    ;;
+
+  run)
+    cd "$THIS_DIR"
+    local +x out="tmp/out/da_redis.specs"
+    mkdir -p tmp/in tmp/out
+    sh_color ORANGE "=== {{Compiling}}:"
+    my_crystal __ build specs/specs.cr -o $out
+
+    sh_color ORANGE "=== {{Running}}: $out"
+    $out
+    ;;
+
+  *)
+    echo "!!! Unknown arguments: $ORIGINAL_ARGS" >&2
+    exit 1
+    ;;
+
+esac
+

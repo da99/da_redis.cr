@@ -20,5 +20,6 @@ DA_Redis.connect(PORT) { |redis|
   puts redis.keys("my_temp.*")
   keys = redis.keys("my_temp.*")
   puts redis.send("DEL", keys)
+  puts redis.send("DEL", [] of String)
 }
 

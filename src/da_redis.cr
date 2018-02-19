@@ -127,11 +127,12 @@ class DA_Redis
     @socket << "$" << element.bytesize << "\r\n" << element << "\r\n"
   end
 
-  def send(cmd_name : String, message : Array(String))
-    msg_size = 1 + message.size
+  def send(cmd_name : String, args : Array(String))
+    return 0 if cmd_name == "DEL" && args.empty?
+    msg_size = 1 + args.size
     @socket << "*" << msg_size << "\r\n"
     send_arg(cmd_name)
-    message.each { |x|
+    args.each { |x|
       send_arg(x)
     }
     self.class.receive_and_parse(self)

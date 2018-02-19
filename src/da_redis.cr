@@ -79,7 +79,7 @@ class DA_Redis
 
       # Ignore \r\n
       @socket.skip(2)
-      str.inspect
+      str
 
     when '+'
       # Simple string

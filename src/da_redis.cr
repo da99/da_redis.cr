@@ -1,6 +1,7 @@
 
 
 require "socket"
+require "inspect_bang"
 
 class DA_Redis
 
@@ -11,13 +12,23 @@ class DA_Redis
   alias REDIS_VALUE = String | Int64 | Nil
   alias ARRAY = Array(REDIS_VALUE)
 
-  @@CONNECTIONS = [] of TCPSocket
+  @@CONNECTIONS = Deque(DA_Redis).new
+  @@PORT = 6379
 
   def self.connect(*args)
-    r = new(*args)
-    result = yield r
-    r.close
-    result
+    begin
+      r = @@CONNECTIONS.pop? || new(@@PORT, *args)
+      result = yield r
+      @@CONNECTIONS.push r
+      result
+    rescue e
+      r.close if r
+      raise e
+    end
+  end
+
+  def self.port(port : Int32)
+    @@PORT = port
   end
 
   def self.close
@@ -96,7 +107,6 @@ class DA_Redis
     @socket = TCPSocket.new("localhost", @port)
     @socket.sync = false
     @is_connected = true
-    @@CONNECTIONS.push @socket
   end # === def initialize
 
   def connected?
@@ -174,6 +184,7 @@ class DA_Redis
 
   def close
     if connected?
+      inspect! "=== closing ===="
       send("QUIT")
       @socket.close
       @is_connected = false

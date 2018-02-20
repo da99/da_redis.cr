@@ -8,17 +8,22 @@ class DA_Redis
   # Class
   # =============================================================================
 
-  alias REDIS_VALUE = String | Int64 | Nil
-  alias ARRAY = Array(REDIS_VALUE)
+  alias VALUE = String | Int64 | Nil
+  alias ARRAY = Array(VALUE)
 
-  @@CONNECTIONS = Deque(DA_Redis).new
-  @@PORT = 6379
+  @@CONNECTIONS     = Deque(DA_Redis).new
+  @@PORT            = 6379
+  @@MAX_CONNECTIONS = 50
 
   def self.connect(*args)
     begin
       r = @@CONNECTIONS.pop? || new(@@PORT, *args)
       result = yield r
-      @@CONNECTIONS.push r
+      if @@CONNECTIONS.size > @@MAX_CONNECTIONS
+        r.close
+      else
+        @@CONNECTIONS.push r
+      end
       result
     rescue e
       r.close if r
@@ -61,7 +66,7 @@ class DA_Redis
       size.times { |i|
         result = receive_and_parse(conn)
         case result
-        when REDIS_VALUE
+        when VALUE
           arr << result
         else
           raise Exception.new("Can't store this value in a Redia Array: #{result.inspect}")
@@ -182,11 +187,11 @@ class DA_Redis
   end # === def keys
 
   def close
-    if connected?
-      send("QUIT")
-      @socket.close
-      @is_connected = false
-    end
+    return false if !connected?
+    send("QUIT")
+    @socket.close
+    @is_connected = false
+    true
   end
 
 end # === class Conn

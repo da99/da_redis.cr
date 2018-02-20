@@ -1,5 +1,6 @@
 
 require "../src/da_redis"
+require "inspect_bang"
 
 # This is a place holder.
 # I will write better tests later on.

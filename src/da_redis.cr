@@ -1,7 +1,6 @@
 
 
 require "socket"
-require "inspect_bang"
 
 class DA_Redis
 
@@ -184,7 +183,6 @@ class DA_Redis
 
   def close
     if connected?
-      inspect! "=== closing ===="
       send("QUIT")
       @socket.close
       @is_connected = false

@@ -15,6 +15,10 @@ class DA_Redis
   @@PORT            = 6379
   @@MAX_CONNECTIONS = 50
 
+  def self.max(i : Int32)
+    @@MAX_CONNECTIONS = i
+  end
+
   def self.connect(*args)
     begin
       r = @@CONNECTIONS.pop? || new(@@PORT, *args)
@@ -69,7 +73,7 @@ class DA_Redis
         when VALUE
           arr << result
         else
-          raise Exception.new("Can't store this value in a Redia Array: #{result.inspect}")
+          raise Exception.new("Invalid value for Redis Array: #{result.inspect}")
         end
       }
       arr

@@ -43,6 +43,47 @@ describe "send" do
   end # === it "can DEL keys"
 end # === desc "send"
 
+describe ".send lists" do
+  it "can LPUSH a value" do
+    actual = [] of String
+    DA_Redis.connect { |r|
+      r.send("LPUSH", "my_temp_list", "1")
+      r.send("LPUSH", "my_temp_list", "2")
+      r.send("LPUSH", "my_temp_list", "3")
+      actual.push r.send("RPOP", "my_temp_list").to_s
+      actual.push r.send("RPOP", "my_temp_list").to_s
+      actual.push r.send("RPOP", "my_temp_list").to_s
+    }
+    assert actual == %w[1 2 3]
+  end # === it "can LPUSH a valie"
+
+  it "can RPUSH a value" do
+    actual = [] of String
+    DA_Redis.connect { |r|
+      r.send("RPUSH", "my_temp_list", "1")
+      r.send("RPUSH", "my_temp_list", "2")
+      r.send("RPUSH", "my_temp_list", "3")
+      actual.push r.send("RPOP", "my_temp_list").to_s
+      actual.push r.send("RPOP", "my_temp_list").to_s
+      actual.push r.send("RPOP", "my_temp_list").to_s
+    }
+    assert actual == %w[3 2 1]
+  end # === it "can RPUSH a value"
+
+  it "can push/pop strings with whitespace" do
+    actual = [] of String
+    DA_Redis.connect { |r|
+      r.send("RPUSH", "my_temp_list", "i am")
+      r.send("RPUSH", "my_temp_list", "happy today")
+      r.send("RPUSH", "my_temp_list", "because it is Friday")
+      actual.push r.send("RPOP", "my_temp_list").to_s
+      actual.push r.send("RPOP", "my_temp_list").to_s
+      actual.push r.send("RPOP", "my_temp_list").to_s
+    }
+    assert actual == ["because it is Friday", "happy today", "i am"]
+  end # === it "can push/pop strings"
+end # === desc ".send lists"
+
 describe ".keys" do
   it "retrieves keys when the wildcard is used: *" do
     actual = DA_Redis.connect { |r|

@@ -95,4 +95,15 @@ describe ".keys" do
   end # === it "retrieves keys when the wildcard is used: *"
 end # === desc ".keys"
 
+describe ".send LLEN" do
+  it "retrieves an Int32" do
+    actual = DA_Redis.connect { |r|
+      r.send("LPUSH", "my_temp_list.1", "1")
+      r.send("LPUSH", "my_temp_list.1", "2")
+      r.send("LLEN", "my_temp_list.1")
+    }
+    assert actual == 2
+  end # === it "retrieves an Int32"
+end # === desc ".send LLEN"
+
 
